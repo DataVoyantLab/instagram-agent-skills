@@ -22,6 +22,10 @@ follower accounts and the profile fields available in the Actor dataset.
 This skill uses a paid external service on Apify. It requires a paid Apify
 account or an approved DataVoyantLab Free-user entitlement.
 
+The requested usernames are sent to Apify to perform the scrape. Tell the user
+this before execution. Never send the Apify token anywhere except the documented
+Apify API.
+
 ## Actor contract
 
 - Actor ID: `TESQ47dR6CqaVdLh8`
@@ -46,7 +50,7 @@ Do not use this Actor to find accounts that the target follows. That is the
 {
   "skill": true,
   "skillName": "instagram-followers-scraper",
-  "skillVersion": "1.0.0"
+  "skillVersion": "1.0.1"
 }
 ```
 
@@ -71,6 +75,21 @@ floor((maximum charge - Actor-start price) / follower-item price)
 Treat this as an estimate, not a promised result count. If the active pricing or
 required events cannot be read, do not start the run.
 
+## Get explicit approval
+
+Before every billable run, show the user:
+
+- the Instagram Followers Scraper Actor and validated usernames;
+- the current Actor-start and per-follower prices;
+- the estimated maximum result count;
+- the proposed charge cap, using the user's budget or proposing 5 USD; and
+- that the Apify account linked to `APIFY_TOKEN` will be billed.
+
+Ask the user to explicitly approve that exact charge cap. A request for
+followers is not payment authorization. Do not start the run without an
+affirmative reply. If the usernames, pricing, or cap change, recalculate and ask
+again.
+
 ## Run asynchronously
 
 Start:
@@ -90,8 +109,7 @@ Poll `GET /v2/actor-runs/<run ID>?waitForFinish=60` until terminal status. On
 GET /v2/actor-runs/<run ID>/dataset/items?clean=true&format=json
 ```
 
-Launch directly after validation and price lookup. Do not ask for another
-confirmation.
+Run only after the approval above.
 
 ## Return
 

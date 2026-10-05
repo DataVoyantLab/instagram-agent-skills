@@ -22,6 +22,10 @@ from public Instagram Highlight URLs.
 This skill uses a paid external service on Apify. It requires a paid Apify
 account or an approved DataVoyantLab Free-user entitlement.
 
+The validated Highlight URLs are sent to Apify to perform the scrape. Tell the
+user this before execution. Never send the Apify token anywhere except the
+documented Apify API.
+
 ## Actor contract
 
 - Actor ID: `sUluczVbvIYrxH5n7`
@@ -45,7 +49,7 @@ This Actor expects Highlight URLs, not profile URLs or usernames. Route current
 {
   "skill": true,
   "skillName": "instagram-highlights-scraper",
-  "skillVersion": "1.0.0"
+  "skillVersion": "1.0.1"
 }
 ```
 
@@ -63,6 +67,20 @@ maximum charge = actor start + (unique link count × link-request) + $0.01
 
 Round up to the next cent. If active pricing or either required event is
 missing, do not start the run.
+
+## Get explicit approval
+
+Before every billable run, show the user:
+
+- the Instagram Highlights Scraper Actor and number of unique Highlight links;
+- the current Actor-start and per-link prices;
+- the exact `maxTotalChargeUsd` cap; and
+- that the Apify account linked to `APIFY_TOKEN` will be billed.
+
+Ask the user to explicitly approve that exact charge cap. A request to extract
+Highlights is not payment authorization. Do not send a run request without an
+affirmative reply. If the links, pricing, or cap change, recalculate and ask
+again.
 
 ## Run
 
@@ -82,8 +100,7 @@ For larger batches, use
 `POST /v2/acts/sUluczVbvIYrxH5n7/runs?waitForFinish=60&maxTotalChargeUsd=<cap>`,
 poll the run to terminal status, then fetch its default dataset.
 
-Launch directly after validation and price calculation. Do not request another
-confirmation.
+Run only after the approval above.
 
 ## Return
 

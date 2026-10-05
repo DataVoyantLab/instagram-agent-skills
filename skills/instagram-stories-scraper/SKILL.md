@@ -24,6 +24,10 @@ music, locations, and paid-partnership metadata.
 This skill uses a paid external service on Apify. It requires a paid Apify
 account or an approved DataVoyantLab Free-user entitlement.
 
+The requested usernames are sent to Apify to perform the scrape. Tell the user
+this before execution. Never send the Apify token anywhere except the documented
+Apify API.
+
 ## Actor contract
 
 - Actor ID: `dLL7b34nRrgN6ZV24`
@@ -50,7 +54,7 @@ comments to this Actor.
 {
   "skill": true,
   "skillName": "instagram-stories-scraper",
-  "skillVersion": "1.0.0"
+  "skillVersion": "1.0.1"
 }
 ```
 
@@ -76,6 +80,19 @@ maximum charge = actor start + (username count × username-request) + $0.01
 
 Round up to the next cent and pass the result as `maxTotalChargeUsd`. If the
 active price or either required event is missing, do not start the run.
+
+## Get explicit approval
+
+Before every billable run, show the user:
+
+- the Advanced Instagram Stories Scraper Actor and validated usernames;
+- the current Actor-start and per-username prices;
+- the exact `maxTotalChargeUsd` cap; and
+- that the Apify account linked to `APIFY_TOKEN` will be billed.
+
+Ask the user to explicitly approve that exact charge cap. A request for Stories
+is not payment authorization. Do not send a run request without an affirmative
+reply. If the usernames, pricing, or cap change, recalculate and ask again.
 
 ## Run
 
@@ -103,8 +120,7 @@ Poll `GET /v2/actor-runs/<run ID>?waitForFinish=60` until the status is
 `SUCCEEDED`, `FAILED`, `ABORTED`, or `TIMED-OUT`. On success, retrieve
 `GET /v2/actor-runs/<run ID>/dataset/items?clean=true&format=json`.
 
-Launch directly after validation and price calculation. Do not request an
-additional confirmation.
+Run only after the approval above.
 
 ## Return
 

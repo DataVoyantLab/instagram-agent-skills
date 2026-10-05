@@ -23,6 +23,10 @@ brand terms, and deliver results to a dataset or webhook.
 This skill uses a paid external service on Apify. It requires a paid Apify
 account or an approved DataVoyantLab Free-user entitlement.
 
+The campaign hashtags, brand terms, and time window are sent to Apify to perform
+the scan. Tell the user this before execution. Never send the Apify token
+anywhere except the documented Apify API.
+
 ## Actor contract
 
 - Actor ID: `aXaAdkVNc5MZ60qbH`
@@ -44,14 +48,17 @@ hashtag into an unbounded historical scrape.
 3. Preserve brand terms as user-provided text after trimming and deduplication.
 4. Validate `max_scan_pages` and `last_hours` against the Actor limits.
 5. Accept a webhook only when the user supplied it. Require HTTPS and never
-   invent a destination.
+   invent a destination. Warn that matching Instagram post data and metadata
+   will leave Apify for that external system, show the destination hostname and
+   fields to be sent, and require explicit approval. Never send `APIFY_TOKEN` or
+   sensitive URL query strings to the webhook.
 6. Construct JSON with `jq` and include:
 
 ```json
 {
   "skill": true,
   "skillName": "instagram-campaign-monitor",
-  "skillVersion": "1.0.0"
+  "skillVersion": "1.0.1"
 }
 ```
 
@@ -70,6 +77,23 @@ maximum charge = actor start + (max_scan_pages × scan-page) + $0.01
 Round up to the next cent. If active pricing or either event is missing, do not
 start the run.
 
+## Get explicit approval
+
+Before every billable run, show the user:
+
+- the Instagram Campaign Hashtag Monitor Actor;
+- the validated hashtags, scan-page limit, and time window;
+- the current Actor-start and per-page prices;
+- the exact `maxTotalChargeUsd` cap;
+- that the Apify account linked to `APIFY_TOKEN` will be billed; and
+- the approved webhook hostname, if configured.
+
+Ask the user to explicitly approve that exact scope and charge cap. A monitoring
+request is not payment authorization. Do not send a run request without an
+affirmative reply. For recurring execution, the approval must state the
+schedule, expiry, per-run cap, and aggregate cap. Any change to the inputs,
+pricing, destination, or caps requires renewed approval.
+
 ## Run asynchronously
 
 Start:
@@ -86,8 +110,7 @@ Poll `GET /v2/actor-runs/<run ID>?waitForFinish=60` until terminal status. On
 `SUCCEEDED`, retrieve
 `GET /v2/actor-runs/<run ID>/dataset/items?clean=true&format=json`.
 
-Launch directly after validation and price calculation. Do not request another
-confirmation.
+Run only after the approval above.
 
 ## Return
 
